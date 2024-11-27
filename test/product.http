@@ -1,35 +1,39 @@
 
+
+@url = http://127.0.0.1:8000
+@path = products
+
 ###
-GET http://127.0.0.1:8000/products
+GET {{url}}/{{path}}
 Content-Type: application/json
 
 ###
-GET http://127.0.0.1:8000/product/2
+GET {{url}}/{{path}}/3
 Content-Type: application/json
 
 ###
-POST http://127.0.0.1:8000/product
+POST {{url}}/{{path}}
 Content-Type: application/json
 
 {
-  "name": "sepatu",
+  "name": "sepatu new data",
   "description": "iki sepatu anyar",
   "price": 200.00,
   "quantity": 20
 }
 
 ###
-PUT http://127.0.0.1:8000/product/2
+PUT {{url}}/{{path}}/3
 Content-Type: application/json
 
 {
-  "name": "sepatu update",
+  "name": "sepatu update 2xxxx",
   "description": "iki sepatu anyar tenan",
   "price": 200.00,
   "quantity": 20
 }
 
 ###
-DELETE http://127.0.0.1:8000/product/2
+DELETE {{url}}/{{path}}/3
 Content-Type: application/json
 

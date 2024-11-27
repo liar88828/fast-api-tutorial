@@ -1,0 +1,39 @@
+@url = http://127.0.0.1:8000
+@path = users
+
+###
+GET {{url}}/{{path}}
+Content-Type: application/json
+
+###
+GET {{url}}/{{path}}/1
+Content-Type: application/json
+
+###
+POST {{url}}/{{path}}
+Content-Type: application/json
+
+{
+  "name": "user1",
+  "email": "user1@gmail.com",
+  "phone": "081234512345",
+  "address": "jl. supartman",
+  "password": "12345678"
+}
+
+###
+PUT {{url}}/{{path}}/1
+Content-Type: application/json
+
+{
+  "name": "user1 update",
+  "email": "user1@gmail.com",
+  "phone": "081234512345",
+  "address": "jl. supartman",
+  "password": "12345678"
+}
+
+###
+DELETE {{url}}/{{path}}/1
+Content-Type: application/json
+
