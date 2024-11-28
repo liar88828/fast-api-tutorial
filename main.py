@@ -1,10 +1,17 @@
 from fastapi import FastAPI
-from routes import product, item, user
+from routes import product, item, user, secure
+
 
 app = FastAPI()
 app.include_router(product.router)
 app.include_router(user.router)
+app.include_router(secure.router)
 app.include_router(item.router)
+
+
+@app.get("/")
+async def index_test():
+    return 'hello world'
 
 
 @app.get("/test-db")

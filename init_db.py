@@ -1,6 +1,6 @@
 import asyncio
 
-from database.config import engine
+from database.connect import engine
 from database.table import product
 from database.table import user
 

@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.config import get_db
+from database.connect import get_db
 from schema.product import  ProductCreate, ProductUpdate
 from controller.product import ProductController
 from schema.response import Response
