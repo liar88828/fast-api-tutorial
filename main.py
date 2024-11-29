@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from routes import product, item, user, secure
-
+from routes import product, item, user, secure, auth
 
 app = FastAPI()
 app.include_router(secure.router)
+app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(product.router)
 app.include_router(item.router)

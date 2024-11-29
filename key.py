@@ -5,3 +5,4 @@ JWT_ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_Day = 30
 DATABASE_URL = "mysql+aiomysql://root:@localhost:3306/mydatabase"
+# DATABASE_URL = "sqlite:///./test.db"

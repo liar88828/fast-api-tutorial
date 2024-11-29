@@ -1,0 +1,23 @@
+@url = http://127.0.0.1:8000
+@path = auth
+
+###
+POST {{url}}/{{path}}/login
+Content-Type: application/json
+
+{
+  "email": "user6@gmail.com",
+  "password": "12345678"
+}
+
+###
+POST {{url}}/{{path}}/register
+Content-Type: application/json
+
+{
+  "name": "user6",
+  "email": "user6@gmail.com",
+  "phone": "081234512345",
+  "address": "jl. supartman",
+  "password": "12345678"
+}

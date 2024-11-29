@@ -13,7 +13,7 @@ class UserTable(Base):
     address = Column(String(500), nullable=True)
     password = Column(String(100), nullable=False)
     # Relationship to products
-    products = relationship("ProductTable",# must be same with name class
-                            back_populates="user"## must be same with name column
-                            )
-
+    products = relationship(
+        "ProductTable",  # must be same with name class
+        back_populates="user"  ## must be same with name column
+    )

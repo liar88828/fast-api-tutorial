@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.table.user import UserTable
-from schema.user import UserCreate
+from schema.user import UserCreate, UserDB
 
 
 class UserController:
@@ -18,10 +18,16 @@ class UserController:
             raise HTTPException(status_code=404, detail="User not found")
         return user
 
+    async def find_by_email(self, db: AsyncSession, email: str):
+        result = await db.execute(select(UserTable).where(UserTable.email == email))
+        user: UserDB = result.scalar_one_or_none()
+        return user
+
+
     async def create(self, db: AsyncSession, user: UserCreate):
         new_user = UserTable(**user.dict())
         db.add(new_user)
-        await  db.commit()
+        await db.commit()
         await db.refresh(new_user)
         return new_user
 

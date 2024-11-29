@@ -4,7 +4,7 @@ POST http://127.0.0.1:8000/token
 
 ###
 GET  http://127.0.0.1:8000/token
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwicGFzc3dvcmQiOiJwYXNzd29yZDEyMyIsImV4cCI6MTczMjc5NDkzN30.8IJUnLngcmQH3tHoPazAz7BFiC_4XAwzNBO8xVstSBQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXI2QGdtYWlsLmNvbSIsImlkIjoxMywibmFtZSI6InVzZXI2IiwicGhvbmUiOiIwODEyMzQ1MTIzNDUiLCJhZGRyZXNzIjoiamwuIHN1cGFydG1hbiIsImV4cCI6MTczMjg3MDgzMH0.1-SmS90ujIklHpqzL2F1OiZ9ROzcNH3bVWbcS5DYSbs
 
 ###
 GET http://127.0.0.1:8000/
