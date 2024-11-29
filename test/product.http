@@ -1,5 +1,3 @@
-
-
 @url = http://127.0.0.1:8000
 @path = products
 
@@ -19,7 +17,8 @@ Content-Type: application/json
   "name": "sepatu new data",
   "description": "iki sepatu anyar",
   "price": 200.00,
-  "quantity": 20
+  "quantity": 20,
+  "id_user": 1
 }
 
 ###

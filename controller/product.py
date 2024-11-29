@@ -7,6 +7,8 @@ from schema.product import ProductCreate, ProductUpdate
 
 
 class ProductController:
+    # def __init__(self, db: AsyncSession):
+    #     self.db = db
 
     async def find_all(self, db: AsyncSession):
         result = await db.execute(select(ProductTable))
@@ -21,7 +23,7 @@ class ProductController:
 
     async def create(self, db: AsyncSession, product: ProductCreate):
         new_product = ProductTable(**product.dict())
-        # new_product = ProductTable(
+        # new_product = Product(
         #     name=product.name,
         #     description=product.description,
         #     price=product.price,

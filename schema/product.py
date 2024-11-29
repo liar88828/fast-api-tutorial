@@ -10,6 +10,7 @@ class ProductSchema(BaseModel):
     price: float
     quantity: int
     description: Optional[str] = None
+    id_user: int
 
 
 class ProductCreate(ProductSchema):
@@ -20,7 +21,7 @@ class ProductUpdate(ProductSchema):
     pass
 
 
-class Product(ProductSchema):
+class ProductDB(ProductSchema):
     id: int
 
     class Config:

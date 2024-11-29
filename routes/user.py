@@ -12,7 +12,7 @@ user_controller = UserController()
 
 @router.get('/')
 async def user_find_all(db: AsyncSession = Depends(get_db)):
-    result = await  user_controller.find_all(db)
+    result = await user_controller.find_all(db)
     return Response(message="success get all data user", data=result, code=200)
 
 

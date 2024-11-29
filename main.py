@@ -3,9 +3,9 @@ from routes import product, item, user, secure
 
 
 app = FastAPI()
-app.include_router(product.router)
-app.include_router(user.router)
 app.include_router(secure.router)
+app.include_router(user.router)
+app.include_router(product.router)
 app.include_router(item.router)
 
 

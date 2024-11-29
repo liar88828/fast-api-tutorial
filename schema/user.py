@@ -17,7 +17,7 @@ class UserUpdate(UserBase):
     pass
 
 
-class Product(UserBase):
+class UserDB(UserBase):
     id: int
 
     class Config:
