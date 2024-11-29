@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Optional
 
 from pydantic import BaseModel
@@ -10,7 +9,7 @@ class ProductSchema(BaseModel):
     price: float
     quantity: int
     description: Optional[str] = None
-    id_user: int
+    id_user: Optional[int] = None
 
 
 class ProductCreate(ProductSchema):

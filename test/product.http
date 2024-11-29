@@ -12,18 +12,19 @@ Content-Type: application/json
 ###
 POST {{url}}/{{path}}
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA4MTIzNDUxMjM0NSIsImFkZHJlc3MiOiJqbC4gc3VwYXJ0bWFuIiwiaWQiOjEzLCJuYW1lIjoidXNlcjYiLCJlbWFpbCI6InVzZXI2QGdtYWlsLmNvbSIsImV4cCI6MTczMjg3MzgwMn0.U2dPO8sPGctFHfeO93d7mQfIOv9bAQxPLzCGip-jm88
 
 {
   "name": "sepatu new data",
   "description": "iki sepatu anyar",
   "price": 200.00,
-  "quantity": 20,
-  "id_user": 1
+  "quantity": 20
 }
 
 ###
-PUT {{url}}/{{path}}/3
+PUT {{url}}/{{path}}/7
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA4MTIzNDUxMjM0NSIsImFkZHJlc3MiOiJqbC4gc3VwYXJ0bWFuIiwiaWQiOjEzLCJuYW1lIjoidXNlcjYiLCJlbWFpbCI6InVzZXI2QGdtYWlsLmNvbSIsImV4cCI6MTczMjg3MzgwMn0.U2dPO8sPGctFHfeO93d7mQfIOv9bAQxPLzCGip-jm88
 
 {
   "name": "sepatu update 2xxxx",
@@ -33,6 +34,8 @@ Content-Type: application/json
 }
 
 ###
-DELETE {{url}}/{{path}}/3
+DELETE {{url}}/{{path}}/7
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsIm5hbWUiOiJ1c2VyNiIsInBob25lIjoiMDgxMjM0NTEyMzQ1IiwiZW1haWwiOiJ1c2VyNkBnbWFpbC5jb20iLCJhZGRyZXNzIjoiamwuIHN1cGFydG1hbiIsImV4cCI6MTczMjg3NDY3N30.QDE05sXv8tWPD1J7RjD9t8wXmY5VXNzTyB9H-6WgZbk
+
 

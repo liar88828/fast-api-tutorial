@@ -2,3 +2,4 @@ fastapi==0.115.5
 pydantic==2.10.2
 SQLAlchemy==2.0.36
 PyJWT~=2.10.1
+passlib~=1.7.4

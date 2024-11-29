@@ -15,8 +15,8 @@ POST {{url}}/{{path}}/register
 Content-Type: application/json
 
 {
-  "name": "user6",
-  "email": "user6@gmail.com",
+  "name": "user1",
+  "email": "user1@gmail.com",
   "phone": "081234512345",
   "address": "jl. supartman",
   "password": "12345678"

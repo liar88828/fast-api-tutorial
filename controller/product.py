@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.table.product import ProductTable
-from schema.product import ProductCreate, ProductUpdate
+from schema.product import ProductCreate, ProductDB, ProductUpdate
 
 
 class ProductController:
@@ -16,7 +16,7 @@ class ProductController:
 
     async def find_by_id(self, db: AsyncSession, id_product: int):
         result = await db.execute(select(ProductTable).where(ProductTable.id == id_product))
-        product = result.scalar_one_or_none()
+        product: ProductDB = result.scalar_one_or_none()
         if not product:
             raise HTTPException(status_code=404, detail="product not found")
         return product
@@ -44,8 +44,11 @@ class ProductController:
             await db.refresh(existing_product)
             return existing_product
 
-    async def delete(self, db: AsyncSession, id_product: int):
-        product = await self.find_by_id(db, id_product)
+    async def delete(self, db: AsyncSession, id_product: int, id_user: int):
+        product: ProductDB = await self.find_by_id(db, id_product)
+        if product.id_user != id_user:
+            raise HTTPException(status_code=400, detail="You do not have permission to delete this product")
+
         if product:
             await db.delete(product)
             await db.commit()

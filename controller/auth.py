@@ -1,13 +1,11 @@
 from fastapi import HTTPException
+from passlib.hash import bcrypt as pwd_context
 from sqlalchemy.ext.asyncio import AsyncSession
-from passlib.context import CryptContext
+
 from controller.user import UserController
-from database.connect import get_db
 from database.table.user import UserTable
 from schema.user import UserCreate, UserLogin
 from service.jwt_token import verify_jwt
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def get_password_hash(password: str) -> str:

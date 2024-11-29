@@ -1,13 +1,21 @@
-from fastapi import Depends, APIRouter
-
+from fastapi import APIRouter, Depends, FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.connect import get_db
-from schema.product import  ProductCreate, ProductUpdate
-from controller.product import ProductController
-from schema.response import Response
 
-router = APIRouter(prefix="/products", tags=["products"])
+from controller.product import ProductController
+from database.connect import get_db
+from schema.product import ProductCreate, ProductUpdate
+from schema.response import Response
+from schema.user import UserDB
+from service.jwt_token import verify_jwt
+
 product_controller = ProductController()
+app = FastAPI()
+router = APIRouter(prefix="/products", tags=["products"], )
+
+
+# @router.middleware("http")
+# async def product_token_verification_middleware(request: Request, call_next):
+#     return await verify_access_token(request, call_next)
 
 
 @router.get('/')
@@ -23,18 +31,29 @@ async def product_one(id_product: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post('/')
-async def product_create(product: ProductCreate, db: AsyncSession = Depends(get_db)):
-    responseDb = await product_controller.create(db=db, product=product)
-    return Response(data=responseDb, message="success create", code=200)
+async def product_create(product: ProductCreate,
+                         db: AsyncSession = Depends(get_db),
+                         user: UserDB = Depends(verify_jwt)
+                         ):
+    product_data = product.copy(update={"id_user": user['id']})
+    response_db = await product_controller.create(db=db, product=product_data)
+    return Response(data=response_db, message="success create", code=200)
 
 
 @router.put('/{id_product}')
-async def product_update(id_product: int, product: ProductUpdate, db: AsyncSession = Depends(get_db)):
-    result = await product_controller.update(db=db, id_product=id_product, product=product)
+async def product_update(product: ProductUpdate, id_product: int,
+                         db: AsyncSession = Depends(get_db),
+                         user: UserDB = Depends(verify_jwt)
+                         ):
+    product_data = product.copy(update={"id_user": user['id']})
+    result = await product_controller.update(db=db, id_product=id_product, product=product_data)
     return Response(code=200, message="success update", data=result)
 
 
 @router.delete('/{id_product}')
-async def product_delete(id_product: int, db: AsyncSession = Depends(get_db)):
-    result = await product_controller.delete(db=db, id_product=id_product)
+async def product_delete(id_product: int,
+                         db: AsyncSession = Depends(get_db),
+                         user: UserDB = Depends(verify_jwt)
+                         ):
+    result = await product_controller.delete(db=db, id_product=id_product, id_user=user['id'])
     return Response(code=200, message="success delete", data=result)
