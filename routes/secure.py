@@ -1,5 +1,4 @@
 from fastapi import Depends, APIRouter
-
 from service.jwt_token import create_jwt,  verify_jwt
 
 router = APIRouter(prefix="/token", tags=["token"])

@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes import auth, item, product, secure, user
 
 app = FastAPI()
-
+# noinspection PyTypeChecker
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Change this to specific domains in production
@@ -21,7 +21,7 @@ app.include_router(item.router)
 
 @app.get("/")
 async def index_test():
-    return 'hello world'
+    return {'msg': 'hello world'}
 
 
 @app.get("/test-db")

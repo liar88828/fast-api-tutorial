@@ -1,7 +1,7 @@
 import asyncio
 
 from database.connect import engine
-from database.table import product, user
+from database.table import user
 
 
 async def init_db():

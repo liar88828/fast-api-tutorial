@@ -1,0 +1,41 @@
+@url = http://127.0.0.1:8000
+@path = products
+
+###
+GET {{url}}/{{path}}
+Content-Type: application/json
+
+###
+GET {{url}}/{{path}}/18
+Content-Type: application/json
+
+###
+POST {{url}}/{{path}}
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA4MTIzNDUxMjM0NSIsImlkIjoxNywibmFtZSI6InVzZXI2IiwiZW1haWwiOiJ1c2VyNkBnbWFpbC5jb20iLCJhZGRyZXNzIjoiamwuIHN1cGFydG1hbiIsImV4cCI6MTczMjk1NzI5Nn0.q-1sVubFEc4LnyzropBvketk9dORiAWUG_l5HbK2aK0
+
+{
+  "name": "sepatu new data",
+  "description": "iki sepatu anyar",
+  "price": 200.00,
+  "quantity": 20
+}
+
+###
+PUT {{url}}/{{path}}/18
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA4MTIzNDUxMjM0NSIsImlkIjoxNywibmFtZSI6InVzZXI2IiwiZW1haWwiOiJ1c2VyNkBnbWFpbC5jb20iLCJhZGRyZXNzIjoiamwuIHN1cGFydG1hbiIsImV4cCI6MTczMjk1NzI5Nn0.q-1sVubFEc4LnyzropBvketk9dORiAWUG_l5HbK2aK0
+
+{
+  "name": "sepatu update 2xxxx",
+  "description": "iki sepatu anyar tenan",
+  "price": 200.00,
+  "quantity": 20
+}
+
+###
+DELETE {{url}}/{{path}}/17
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA4MTIzNDUxMjM0NSIsImlkIjoxNywibmFtZSI6InVzZXI2IiwiZW1haWwiOiJ1c2VyNkBnbWFpbC5jb20iLCJhZGRyZXNzIjoiamwuIHN1cGFydG1hbiIsImV4cCI6MTczMjk1NzI5Nn0.q-1sVubFEc4LnyzropBvketk9dORiAWUG_l5HbK2aK0
+
+

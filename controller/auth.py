@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from passlib.hash import bcrypt as pwd_context
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from controller.user import UserController
@@ -16,11 +17,12 @@ def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
 
+# noinspection PyMethodMayBeStatic
 class AuthController(UserController):
     async def authenticate(self, db: AsyncSession, token: str):
         user = verify_jwt(token)
-        response = await db.execute(UserTable.select().where(UserTable.c.id == user.id))
-        exist = await response.scalar_one_or_none()
+        response = await db.execute(select(UserTable).where(user.id == UserTable.id))
+        exist =   response.scalar_one_or_none()
         if not exist:
             raise HTTPException(status_code=404, detail="User not found")
         return exist

@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from controller.product import ProductController
 from database.connect import get_db
 from schema.product import ProductCreate, ProductUpdate
@@ -20,8 +19,8 @@ router = APIRouter(prefix="/products", tags=["products"], )
 
 @router.get('/')
 async def product_all(db: AsyncSession = Depends(get_db)):
-    responseDB = await product_controller.find_all(db)
-    return Response(code=200, message='success', data=responseDB)
+    response_db = await product_controller.find_all(db)
+    return Response(code=200, message='success', data=response_db)
 
 
 @router.get('/{id_product}')
@@ -35,7 +34,7 @@ async def product_create(product: ProductCreate,
                          db: AsyncSession = Depends(get_db),
                          user: UserDB = Depends(verify_jwt)
                          ):
-    product_data = product.copy(update={"id_user": user['id']})
+    product_data = product.model_copy(update={"id_user": user['id']})
     response_db = await product_controller.create(db=db, product=product_data)
     return Response(data=response_db, message="success create", code=200)
 
@@ -45,7 +44,7 @@ async def product_update(product: ProductUpdate, id_product: int,
                          db: AsyncSession = Depends(get_db),
                          user: UserDB = Depends(verify_jwt)
                          ):
-    product_data = product.copy(update={"id_user": user['id']})
+    product_data = product.model_copy(update={"id_user": user['id']})
     result = await product_controller.update(db=db, id_product=id_product, product=product_data)
     return Response(code=200, message="success update", data=result)
 

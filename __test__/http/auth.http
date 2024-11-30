@@ -18,6 +18,6 @@ Content-Type: application/json
   "name": "user1",
   "email": "user1@gmail.com",
   "phone": "081234512345",
-  "address": "jl. supartman",
+  "address": "jl. superman",
   "password": "12345678"
 }
