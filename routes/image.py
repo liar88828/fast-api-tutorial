@@ -1,85 +1,108 @@
-import shutil
-from pathlib import Path
+from io import BytesIO
 from typing import Annotated
 
 from fastapi import File, UploadFile, HTTPException, APIRouter
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+
+from service.image import ImageController, UPLOAD_FOLDER, ENCRYPTION_PASSWORD
 
 router = APIRouter(prefix="/images", tags=["image"])
+image_controller = ImageController()
 
 
 @router.post("/files/")
 async def create_file(file: Annotated[bytes | None, File()] = None):
-	if not file:
-		return {"message": "No file sent"}
-	else:
-		return {"file_size": len(file)}
+    if not file:
+        return {"message": "No file sent"}
+    else:
+        return {"file_size": len(file)}
 
 
 @router.post("/uploadfile/")
 async def create_upload_file(file: UploadFile | None = None):
-	if not file:
-		return {"message": "No upload file sent"}
-	else:
-		return {"filename": file.filename}
-
-
-# Define the folder where files will be saved
-UPLOAD_FOLDER = Path("public")
-UPLOAD_FOLDER.mkdir(exist_ok=True)  # Create the folder if it doesn't exist
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"}
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+    if not file:
+        return {"message": "No upload file sent"}
+    else:
+        return {"filename": file.filename}
 
 
 @router.post("/save-image/")
 async def save_image(file: UploadFile):
-	if not file:
-		raise HTTPException(status_code=400, detail="No file sent")
+    if not file:
+        raise HTTPException(status_code=400, detail="No file sent")
 
-	# Check file extension
-	file_extension = Path(file.filename).suffix.lower()
-	if file_extension not in ALLOWED_EXTENSIONS:
-		raise HTTPException(status_code=400, detail=f"Invalid file extension. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
+    # Check file extension
+    image_controller.extension_file(file=file)
 
-	# Check file size
-	file_size = await file.read()  # Read file content to check size
-	if len(file_size) > MAX_FILE_SIZE:
-		raise HTTPException(status_code=400, detail=f"File size exceeds {MAX_FILE_SIZE // (1024 * 1024)} MB limit")
+    # Check file size
+    file_content = await  image_controller.size_file(file=file)
+    # print(file_content)
+    # Encrypt the file content
+    encrypted_data = image_controller.encrypt_image(data=file_content, password=ENCRYPTION_PASSWORD)
 
-	# Reset file pointer after size check
-	file.file.seek(0)
+    # Define the file path to save the encrypted file
+    encrypted_file_path = UPLOAD_FOLDER / (file.filename + ".enc")
 
-	# Define the file path to save the uploaded file
-	file_path = UPLOAD_FOLDER / file.filename
+    try:
+        with encrypted_file_path.open("wb") as buffer:
+            buffer.write(encrypted_data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File could not be saved: {str(e)}")
 
-	try:
-		with file_path.open("wb") as buffer:
-			shutil.copyfileobj(file.file, buffer)
-	except Exception as e:
-		raise HTTPException(status_code=500, detail=f"File could not be saved: {str(e)}")
-
-	return JSONResponse(content={"message": "File saved successfully", "file_path": str(file_path)})
+    return JSONResponse(content={"message": "File saved successfully", "file_path": str(encrypted_file_path)})
 
 
-@router.get("/index")
+@router.get("/get-image/{filename}")
+async def get_image(filename: str):
+    """Decrypt and return the requested encrypted image."""
+    encrypted_file_path = UPLOAD_FOLDER / (filename + ".enc")
+
+    if not encrypted_file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    try:
+        # Read the encrypted file
+        encrypted_data = encrypted_file_path.read_bytes()
+
+        # Decrypt the file content
+        decrypted_data = image_controller.decrypt_image(encrypted_data=encrypted_data, password=ENCRYPTION_PASSWORD)
+
+        # ---------
+        # # Save the decrypted file temporarily (optional, for serving)
+        # temp_file_path = UPLOAD_FOLDER / filename
+        # temp_file_path.write_bytes(decrypted_data)
+        #
+        # # Return the decrypted file as a response
+        # return FileResponse(temp_file_path, media_type="image/*", filename=filename)
+        # -------
+
+        # Create a BytesIO object to simulate a file-like object
+        decrypted_image_stream = BytesIO(decrypted_data)
+
+        # Return the decrypted image directly using StreamingResponse
+        return StreamingResponse(decrypted_image_stream, media_type="image/*",
+                                 headers={"Content-Disposition": f"inline; filename={filename}"})
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not decrypt file: {str(e)}")
+
+
+@router.get("/show/")
+async def list_files():
+    """Custom endpoint to list files in the /public/ directory."""
+    # files = [f.name for f in UPLOAD_FOLDER.iterdir() if f.is_file()]
+    files = [file.name for file in UPLOAD_FOLDER.glob("*.enc")]
+    return JSONResponse(content=files)
+    # file_links = [f'<a href="/public/{file}">{file}</a>' for file in files]
+    # return HTMLResponse(content="<br>".join(file_links))
+
+
+# Serve static files for uploaded images
+@router.get("/")
 async def main():
-	content = """
+    content = """
 <body>
-
-    <h1>Upload File as Bytes</h1>
-    <form action="/images/files/" method="post" enctype="multipart/form-data">
-        <label for="file_bytes">Choose a file:</label>
-        <input type="file" id="file_bytes" name="file">
-        <button type="submit">Upload</button>
-    </form>
-
-   <h1>Upload File with Metadata</h1>
-    <form action="/images/uploadfile/" method="post" enctype="multipart/form-data">
-        <label for="file_metadata">Choose a file:</label>
-        <input type="file" id="file_metadata" name="file">
-        <button type="submit">Upload</button>
-    </form>
-
+ 
 
      <h1>Upload and Save Image</h1>
     <form id="uploadForm" action="/images/save-image/" method="post" enctype="multipart/form-data">
@@ -87,12 +110,19 @@ async def main():
         <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.gif" required>
         <small>Allowed extensions: .jpg, .jpeg, .png, .gif (Max size: 5MB)</small>
         <br>
-        <button type="submit">Upload</button>
+        <button type="submit">Upload</button>        
     </form>
+
+    <h2>Uploaded Images</h2>
+    <div id="imageGallery">
+        <p>No images yet. Upload an image to see it here!</p>
+    </div>
+
 
     <script>
         const form = document.getElementById('uploadForm');
         const fileInput = document.getElementById('file');
+        const gallery = document.getElementById('imageGallery');
         const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
         form.addEventListener('submit', function (event) {
@@ -115,11 +145,52 @@ async def main():
                     alert(`Invalid file type. Allowed: ${allowedExtensions.join(', ')}`);
                     event.preventDefault();
                     return;
+                }else{
+                
+                    alert('Image uploaded successfully!');
+                
                 }
             }
         });
+        
+         async function fetchImages() {
+            try {
+                const response = await fetch('/public-image/');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+        
+                // Parse JSON response
+                const fileList = await response.json(); // Assuming the response is a JSON array
+                console.log(fileList); // Example: ["asrama.jpg.enc","IMG_16569.jpeg.enc","team.jpg.enc"]
+        
+                if (fileList.length === 0) {
+                    gallery.innerHTML = '<p>No images yet. Upload an image to see it here!</p>';
+                    return;
+                }
+        
+                gallery.innerHTML = ''; // Clear gallery
+        
+                // Add each image to the gallery
+                fileList.forEach(file => {
+                    const filename = file.replace('.enc', ''); // Remove ".enc" extension
+                    const imageUrl = `/images/get-image/${filename}`;// is request api
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = filename;
+                    img.style = 'max-width: 200px; margin: 10px;';
+                    gallery.appendChild(img);
+                });
+            } catch (error) {
+                console.error('Error fetching images:', error);
+                gallery.innerHTML = '<p>Failed to load images.</p>';
+            }
+        }
+           // Fetch images on page load
+         window.onload = fetchImages;
+       
     </script>
   
 </body>
     """
-	return HTMLResponse(content=content)
+    return HTMLResponse(content=content)
