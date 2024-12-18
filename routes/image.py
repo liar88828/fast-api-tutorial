@@ -1,7 +1,7 @@
 from io import BytesIO
 from typing import Annotated
 
-from fastapi import File, UploadFile, HTTPException, APIRouter
+from fastapi import File, UploadFile, HTTPException, APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 
 from service.image import ImageController, UPLOAD_FOLDER, ENCRYPTION_PASSWORD
@@ -27,7 +27,7 @@ async def create_upload_file(file: UploadFile | None = None):
 
 
 @router.post("/save-image/")
-async def save_image(file: UploadFile):
+async def save_image(file: UploadFile, request: Request):
     if not file:
         raise HTTPException(status_code=400, detail="No file sent")
 
@@ -49,7 +49,10 @@ async def save_image(file: UploadFile):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"File could not be saved: {str(e)}")
 
-    return JSONResponse(content={"message": "File saved successfully", "file_path": str(encrypted_file_path)})
+    return JSONResponse(content={"message": "File saved successfully",
+                                 "file_path": str(encrypted_file_path),
+                                 'full_path': f"{str(request.base_url)}images/get-image/{str(file.filename)}"
+                                 })
 
 
 @router.get("/get-image/{filename}")
