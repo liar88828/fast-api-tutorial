@@ -68,7 +68,10 @@ async def get_image(filename: str):
         encrypted_data = encrypted_file_path.read_bytes()
 
         # Decrypt the file content
-        decrypted_data = image_controller.decrypt_image(encrypted_data=encrypted_data, password=ENCRYPTION_PASSWORD)
+        decrypted_data = image_controller.decrypt_image(
+            encrypted_data=encrypted_data,
+            password=ENCRYPTION_PASSWORD
+        )
 
         # ---------
         # # Save the decrypted file temporarily (optional, for serving)
@@ -83,8 +86,10 @@ async def get_image(filename: str):
         decrypted_image_stream = BytesIO(decrypted_data)
 
         # Return the decrypted image directly using StreamingResponse
-        return StreamingResponse(decrypted_image_stream, media_type="image/*",
-                                 headers={"Content-Disposition": f"inline; filename={filename}"})
+        return StreamingResponse(
+            decrypted_image_stream,
+            media_type="image/*",
+            headers={"Content-Disposition": f"inline; filename={filename}"})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not decrypt file: {str(e)}")
