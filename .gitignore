@@ -241,3 +241,5 @@ fabric.properties
 /public/*.jpg
 /public/*.jpeg
 /public/*.enc
+/__note/decrypted_image.jpg
+/__note/encrypted_image.bin
