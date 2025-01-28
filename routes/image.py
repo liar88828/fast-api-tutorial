@@ -36,12 +36,14 @@ async def save_image(file: UploadFile, request: Request):
 
     # Check file size
     file_content = await  image_controller.size_file(file=file)
-    # print(file_content)
-    # Encrypt the file content
-    encrypted_data = image_controller.encrypt_image(data=file_content, password=ENCRYPTION_PASSWORD)
-
-    # Define the file path to save the encrypted file
     encrypted_file_path = UPLOAD_FOLDER / (file.filename + ".enc")
+
+    # Encrypt the file content
+    # Define the file path to save the encrypted file
+    encrypted_data = await image_controller.encrypt_image(
+        data=file_content,
+        password=ENCRYPTION_PASSWORD,
+    )
 
     try:
         with encrypted_file_path.open("wb") as buffer:
@@ -65,12 +67,13 @@ async def get_image(filename: str):
 
     try:
         # Read the encrypted file
-        encrypted_data = encrypted_file_path.read_bytes()
+        # encrypted_data = encrypted_file_path.read_bytes()
 
         # Decrypt the file content
         decrypted_data = image_controller.decrypt_image(
-            encrypted_data=encrypted_data,
+            decrypted_image_path=str(encrypted_file_path),
             password=ENCRYPTION_PASSWORD
+            # encrypted_data=encrypted_data,
         )
 
         # ---------

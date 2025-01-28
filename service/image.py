@@ -8,6 +8,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from fastapi import UploadFile, HTTPException
 
+from service.aes_enc import encrypt_image_lib, decrypt_image_lib
+
 # Define the folder where files will be saved
 UPLOAD_FOLDER = Path("public")
 UPLOAD_FOLDER.mkdir(exist_ok=True)  # Create the folder if it doesn't exist
@@ -17,7 +19,20 @@ ENCRYPTION_PASSWORD = b"securepassword"  # Use a secure and secret password
 SALT = b"static_salt_value"  # Salt for KDF, ideally unique per file
 
 
-class ImageController():
+# File paths
+# input_image_path = 'lenna.png'  # Replace with your image file path
+# encrypted_file_path = "encrypted_image.bin"
+# decrypted_image_path = "decrypted_image.jpg"
+
+# Generate a random key and IV
+# _iv = b'\xa5\xa4\xa5)\xabh\xcdZ\xb9\x81\x17\x1d+\x92\xde\x80'  # 16 bytes
+# _key = b'\x12\x34\x56\x78\x90\xab\xcd\xef\xfe\xdc\xba\x98\x76\x54\x32\x10'  # 16 bytes (128-bit key)
+
+
+# Run the encryption and decryption
+
+
+class ImageController:
     def __init__(self):
         pass
 
@@ -41,7 +56,41 @@ class ImageController():
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"File could not be saved: {str(e)}")
 
-    def encrypt_image(self, data: bytes, password: bytes) -> bytes:
+    def password_image(self, password: bytes):
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=SALT,
+            iterations=100_000,
+            backend=default_backend(),
+        )
+
+        return kdf.derive(password)
+
+    async def encrypt_image(self, data: bytes, password: bytes) -> bytes:
+        """Encrypt the image data using AES encryption."""
+        # Derive key using PBKDF2
+        key = self.password_image(password)
+
+        # Generate a random initialization vector (IV)
+        iv = urandom(16)
+        # cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        # encryptor = cipher.encryptor()
+
+        # Return IV concatenated with encrypted data (needed for decryption)
+        return iv + encrypt_image_lib(data, key, iv)
+
+    def decrypt_image(self,
+                      password: bytes,
+                      decrypted_image_path: str) -> bytes:
+        """Decrypt the encrypted image data using AES encryption."""
+        # Derive key using PBKDF2
+        key = self.password_image(password)
+
+        # Decrypt and return the original image data
+        return decrypt_image_lib(decrypted_image_path, key)
+
+    def _encrypt_image(self, data: bytes, password: bytes) -> bytes:
         """Encrypt the image data using AES encryption."""
         # Derive key using PBKDF2
         kdf = PBKDF2HMAC(
@@ -61,7 +110,7 @@ class ImageController():
         # Return IV concatenated with encrypted data (needed for decryption)
         return iv + encryptor.update(data) + encryptor.finalize()
 
-    def decrypt_image(self, encrypted_data: bytes, password: bytes) -> bytes:
+    def _decrypt_image(self, encrypted_data: bytes, password: bytes) -> bytes:
         """Decrypt the encrypted image data using AES encryption."""
         # Derive key using PBKDF2
         kdf = PBKDF2HMAC(
