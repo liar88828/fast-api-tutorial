@@ -1,0 +1,136 @@
+---
+title: Animal example
+---
+classDiagram
+    class AES {
+        key_columns: list[list]
+        iteration_size: int
+        i: int = 1
+        __init__(): None
+        _expand_key(): list[list[list]]
+        encrypt_block(): bytes
+        encrypt_ctr(): bytes
+        decrypt_ctr(): bytes
+    }
+
+    AES <|-- bytes2matrix
+    AES <|-- _expand_key
+
+    class _expand_key {
+        key_columns: list[list]
+        iteration_size: int
+        r_con: tuple[int]
+        bytes2matrix()
+        xor_bytes()
+    }
+
+    _expand_key <|-- bytes2matrix
+    _expand_key <|-- xor_bytes
+
+    class encrypt_block {
+        plain_state: list[list]
+        bytes2matrix()
+        add_round_key()
+        sub_bytes()
+        shift_rows()
+        mix_columns()
+        add_round_key()
+        matrix2bytes()
+    }
+    encrypt_block <|-- add_round_key
+    encrypt_block <|-- sub_bytes
+    encrypt_block <|-- shift_rows
+    encrypt_block <|-- mix_columns
+    encrypt_block <|-- add_round_key
+    encrypt_block <|-- matrix2bytes
+
+    class encrypt_ctr {
+        blocks: list[bytes] = []
+        nonce: bytes
+        split_blocks()
+        xor_bytes()
+        inc_bytes()
+        encrypt_block()
+    }
+    encrypt_ctr <|-- split_blocks
+    encrypt_ctr <|-- xor_bytes
+    encrypt_ctr <|-- inc_bytes
+    encrypt_ctr <|-- encrypt_block
+
+    class decrypt_ctr {
+        blocks: list[bytes] = []
+        nonce: bytes
+        split_blocks()
+        xor_bytes()
+        inc_bytes()
+        encrypt_block()
+    }
+    decrypt_ctr <|-- split_blocks
+    decrypt_ctr <|-- xor_bytes
+    decrypt_ctr <|-- inc_bytes
+    decrypt_ctr <|-- encrypt_block
+
+    class encrypt_image_lib {
+        data: bytes
+        key: bytes
+        iv: bytes
+        AES()
+        encrypt_ctr()
+    }
+    encrypt_image_lib <|-- AES
+    encrypt_image_lib <|-- encrypt_ctr
+
+    class decrypt_image_lib {
+        encrypted_path: string
+        key: bytes
+        AES()
+        decrypt_ctr()
+    }
+    decrypt_image_lib <|-- AES
+    decrypt_image_lib <|-- encrypt_ctr
+
+    class sub_bytes {
+        plain_state: list[list]
+    }
+    class shift_rows {
+        plain_state: list[list]
+    }
+    class mix_columns {
+        plain_state: list[list]
+    }
+    class add_round_key {
+        plain_state: list[list]
+        _key_matrices: list[list[list]]
+    }
+    class matrix2bytes {
+        plain_state: list[list]
+    }
+    class bytes2matrix {
+        plain_state: list[list]
+    }
+    class xor_bytes {
+        word: list
+        size_: list
+    }
+    class inc_bytes {
+        nonce: bytes
+    }
+    class split_blocks {
+        plaintext: string
+        block_size: int
+    }
+    class mix_columns {
+        plain_state: list[list]
+        mix_single_column()
+    }
+    mix_columns <.. mix_single_column
+
+    class mix_single_column {
+        list_1d: list
+        xtime()
+    }
+    mix_single_column <.. xtime
+
+    class xtime {
+        data: int
+    }

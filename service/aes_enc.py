@@ -55,32 +55,20 @@ def add_round_key(s, k):
 xtime = lambda a: (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
 
 
-def mix_single_column(a):
+def mix_single_column(list_1d: list):
     # see Sec 4.1.2 in The Design of Rijndael
-    t = a[0] ^ a[1] ^ a[2] ^ a[3]
-    u = a[0]
-    a[0] ^= t ^ xtime(a[0] ^ a[1])
-    a[1] ^= t ^ xtime(a[1] ^ a[2])
-    a[2] ^= t ^ xtime(a[2] ^ a[3])
-    a[3] ^= t ^ xtime(a[3] ^ u)
+    t = list_1d[0] ^ list_1d[1] ^ list_1d[2] ^ list_1d[3]
+    u = list_1d[0]
+    list_1d[0] ^= t ^ xtime(list_1d[0] ^ list_1d[1])
+    list_1d[1] ^= t ^ xtime(list_1d[1] ^ list_1d[2])
+    list_1d[2] ^= t ^ xtime(list_1d[2] ^ list_1d[3])
+    list_1d[3] ^= t ^ xtime(list_1d[3] ^ u)
 
 
-def mix_columns(s):
+def mix_columns(list_2d: list[list]):
     for i in range(4):
-        mix_single_column(s[i])
-
-
-def inv_mix_columns(s):
-    # see Sec 4.1.3 in The Design of Rijndael
-    for i in range(4):
-        u = xtime(xtime(s[i][0] ^ s[i][2]))
-        v = xtime(xtime(s[i][1] ^ s[i][3]))
-        s[i][0] ^= u
-        s[i][1] ^= v
-        s[i][2] ^= u
-        s[i][3] ^= v
-
-    mix_columns(s)
+        list_1d = list_2d[i]
+        mix_single_column(list_1d)
 
 
 r_con = (
@@ -247,6 +235,8 @@ def decrypt_image_lib(encrypted_path, key):
     # Decrypt the encrypted data using AES in CTR mode
     decrypted_data = AES(key).decrypt_ctr(encrypted_data, iv)
     return decrypted_data
+
+
 #
 # # File paths
 # input_image_path = 'lenna.png'  # Replace with your image file path
@@ -266,3 +256,63 @@ def decrypt_image_lib(encrypted_path, key):
 # encrypt_image(input_image_path, encrypted_file_path, key, iv)
 # decrypt_image(encrypted_file_path, decrypted_image_path, key)
 #
+"""
+list function
+- AES {
+    - _expand_key {
+        bytes2matrix
+        loop {
+            xor_bytes
+        }
+    }
+    
+    - encrypt_ctr {
+        split_blocks
+        loop {
+            xor_bytes
+            inc_bytes
+        }
+    }
+    
+    - decrypt_ctr {
+        split_blocks
+        loop {
+            xor_bytes
+            inc_bytes
+        }
+    }
+    
+    - encrypt_block {
+        bytes2matrix
+        add_round_key
+            loop {
+                sub_bytes
+                shift_rows
+                mix_columns {
+                    mix_single_column {
+                        xtime
+                    }
+                }
+                add_round_key
+            } 
+            
+        sub_bytes
+        shift_rows
+        add_round_key
+        matrix2bytes
+    }
+}
+
+- split_blocks
+- xor_bytes
+- encrypt_block
+- _expand_key
+- xor_bytes
+- bytes2matrix
+- inc_bytes
+-
+-
+-
+-
+-
+"""
