@@ -4,11 +4,6 @@ from sqlalchemy.orm import relationship
 from database.table.user import Base
 
 
-# Base = declarative_base()
-
-
-# @dataclass
-
 class ProductTable(Base):
     __tablename__ = 'products'
 
@@ -26,6 +21,6 @@ class ProductTable(Base):
     id_user = Column(Integer, ForeignKey("users.id"))
 
     # Relationship to user
-    user = relationship("UserTable",# must be same with name class
-                        back_populates="products"# must be same with name column
+    user = relationship("UserTable",  # must be same with name class
+                        back_populates="products"  # must be same with name column
                         )

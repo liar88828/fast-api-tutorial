@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from schema.my_enum import RoleUser
+
 
 class UserBase(BaseModel):
     name: str
@@ -19,6 +21,7 @@ class UserUpdate(UserBase):
 
 class UserDB(UserBase):
     id: int
+    role: RoleUser
 
     class Config:
         from_attributes = True

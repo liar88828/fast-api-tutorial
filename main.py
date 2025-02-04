@@ -7,6 +7,7 @@ from routes import auth, item, product, secure, user, image
 from service.image import UPLOAD_FOLDER
 
 app = FastAPI()
+
 # noinspection PyTypeChecker
 app.add_middleware(
     CORSMiddleware,

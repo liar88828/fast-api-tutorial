@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from fastapi import UploadFile, HTTPException
 
+from key import settings
 from service.aes_enc import encrypt_image_lib, decrypt_image_lib
 
 # Define the folder where files will be saved
@@ -15,8 +16,11 @@ UPLOAD_FOLDER = Path("public")
 UPLOAD_FOLDER.mkdir(exist_ok=True)  # Create the folder if it doesn't exist
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
-ENCRYPTION_PASSWORD = b"securepassword"  # Use a secure and secret password
-SALT = b"static_salt_value"  # Salt for KDF, ideally unique per file
+
+# ENCRYPTION_PASSWORD = b"securepassword"  # Use a secure and secret password
+# SALT = b"static_salt_value"  # Salt for KDF, ideally unique per file
+ENCRYPTION_PASSWORD = settings.ENCRYPTION_PASSWORD.encode()
+SALT = settings.SALT.encode()
 
 
 # File paths

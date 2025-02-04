@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from key import DATABASE_URL
+from key import settings
 
-engine = create_async_engine(DATABASE_URL,
+engine = create_async_engine(settings.DATABASE_URL,
                              echo=True
                              # connect_args={"check_same_thread": False}
                              )
@@ -14,7 +14,6 @@ async_session = sessionmaker(
     expire_on_commit=False,
     # autocommit=False,
     # autoflush=False
-
 )
 
 

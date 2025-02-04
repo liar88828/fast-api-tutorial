@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from controller.product import ProductController
 from database.connect import get_db
 from schema.product import ProductCreate, ProductUpdate
@@ -9,7 +10,7 @@ from service.jwt_token import verify_jwt
 
 product_controller = ProductController()
 app = FastAPI()
-router = APIRouter(prefix="/products", tags=["products"], )
+router = APIRouter(prefix="/products", tags=["products"])
 
 
 # @router.middleware("http")

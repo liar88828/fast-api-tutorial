@@ -1,8 +1,10 @@
-import jwt
 from datetime import datetime, timedelta, UTC, timezone
+
+import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from key import JWT_ALGORITHM, JWT_SECRET_ACCESS_KEY
+
+from key import settings
 from schema.user import UserDB
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
@@ -17,12 +19,12 @@ def create_jwt(data: dict, expires_delta: timedelta = None):
     else:
         expire = datetime.now(UTC) + timedelta(minutes=10)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, JWT_SECRET_ACCESS_KEY, algorithm=JWT_ALGORITHM)
+    return jwt.encode(to_encode, settings.JWT_SECRET_ACCESS_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
 def verify_jwt(token: str = Depends(oauth2_scheme)) -> UserDB:
     try:
-        payload: UserDB = jwt.decode(token, JWT_SECRET_ACCESS_KEY, algorithms=[JWT_ALGORITHM])
+        payload: UserDB = jwt.decode(token, settings.JWT_SECRET_ACCESS_KEY, algorithms=[settings.JWT_ALGORITHM])
         # username = payload.get("username")
         if not payload:
             raise HTTPException(status_code=401, detail="Invalid token payload")
