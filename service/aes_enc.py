@@ -163,78 +163,49 @@ class AES:
         return [key_columns[4 * i: 4 * (i + 1)] for i in range(len(key_columns) // 4)]
 
     def encrypt_block(self, plaintext):
-        """
-        Encrypts a single block of 16 byte long plaintext.
-        """
         assert len(plaintext) == 16
-
         plain_state = bytes2matrix(plaintext)
-
         add_round_key(plain_state, self._key_matrices[0])
-
         for i in range(1, self.n_rounds):
             sub_bytes(plain_state)
             shift_rows(plain_state)
             mix_columns(plain_state)
             add_round_key(plain_state, self._key_matrices[i])
-
         sub_bytes(plain_state)
         shift_rows(plain_state)
         add_round_key(plain_state, self._key_matrices[-1])
-
         return matrix2bytes(plain_state)
 
     def encrypt_ctr(self, plaintext, iv):
-        """
-        Encrypts `plaintext` using CTR mode with the given nounce/IV.
-        """
         assert len(iv) == 16
-
         blocks = []
         nonce = iv
         for plaintext_block in split_blocks(plaintext, require_padding=False):
-            # CTR mode encrypt: plaintext_block XOR encrypt(nonce)
             block = xor_bytes(plaintext_block, self.encrypt_block(nonce))
             blocks.append(block)
             nonce = inc_bytes(nonce)
-
         return b''.join(blocks)
 
     def decrypt_ctr(self, ciphertext, iv):
-        """
-        Decrypts `ciphertext` using CTR mode with the given nounce/IV.
-        """
         assert len(iv) == 16
-
         blocks = []
         nonce = iv
         for ciphertext_block in split_blocks(ciphertext, require_padding=False):
-            # CTR mode decrypt: ciphertext XOR encrypt(nonce)
             block = xor_bytes(ciphertext_block, self.encrypt_block(nonce))
             blocks.append(block)
             nonce = inc_bytes(nonce)
-
         return b''.join(blocks)
 
 
-# Function to encrypt the image
-def encrypt_image_lib(input_path, key, iv):
-    return AES(key).encrypt_ctr(input_path, iv)
-
-
-# Function to decrypt the image
-def decrypt_image_lib(encrypted_path, key):
-    # Read the encrypted file
-    with open(encrypted_path, 'rb') as f:
-        file_data = f.read()
-
-    # Extract the IV from the file
-    iv = file_data[:16]
-    encrypted_data = file_data[16:]
-
-    # Decrypt the encrypted data using AES in CTR mode
+def decrypt_image_lib(file_data: bytes, key: bytes):
+    iv = file_data[:16]  # get first vi
+    encrypted_data = file_data[16:]  # get last file
     decrypted_data = AES(key).decrypt_ctr(encrypted_data, iv)
     return decrypted_data
+
+
+def encrypt_image_lib(input_path, key, iv):
+    return AES(key).encrypt_ctr(input_path, iv)
 
 
 #

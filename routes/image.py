@@ -28,28 +28,11 @@ async def create_upload_file(file: UploadFile | None = None):
 
 @router.post("/save-image/")
 async def save_image(file: UploadFile, request: Request):
-    if not file:
-        raise HTTPException(status_code=400, detail="No file sent")
-
-    # Check file extension
-    image_controller.extension_file(file=file)
-
-    # Check file size
-    file_content = await  image_controller.size_file(file=file)
-    encrypted_file_path = UPLOAD_FOLDER / (file.filename + ".enc")
-
-    # Encrypt the file content
-    # Define the file path to save the encrypted file
-    encrypted_data = await image_controller.encrypt_image(
-        data=file_content,
-        password=ENCRYPTION_PASSWORD,
+    password = image_controller.password_image(ENCRYPTION_PASSWORD)
+    encrypted_file_path = await image_controller.encrypt_image(
+        file=file,
+        password=password,
     )
-
-    try:
-        with encrypted_file_path.open("wb") as buffer:
-            buffer.write(encrypted_data)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"File could not be saved: {str(e)}")
 
     return JSONResponse(content={"message": "File saved successfully",
                                  "file_path": str(encrypted_file_path),
@@ -59,23 +42,12 @@ async def save_image(file: UploadFile, request: Request):
 
 @router.get("/get-image/{filename}")
 async def get_image(filename: str):
-    """Decrypt and return the requested encrypted image."""
-    encrypted_file_path = UPLOAD_FOLDER / (filename + ".enc")
-
-    if not encrypted_file_path.exists():
-        raise HTTPException(status_code=404, detail="File not found")
-
     try:
-        # Read the encrypted file
-        # encrypted_data = encrypted_file_path.read_bytes()
-
-        # Decrypt the file content
-        decrypted_data = image_controller.decrypt_image(
-            decrypted_image_path=str(encrypted_file_path),
-            password=ENCRYPTION_PASSWORD
-            # encrypted_data=encrypted_data,
+        password = image_controller.password_image(ENCRYPTION_PASSWORD)
+        decrypted_data = await image_controller.decrypt_image(
+            filename=filename,
+            password=password
         )
-
         # ---------
         # # Save the decrypted file temporarily (optional, for serving)
         # temp_file_path = UPLOAD_FOLDER / filename
@@ -84,11 +56,9 @@ async def get_image(filename: str):
         # # Return the decrypted file as a response
         # return FileResponse(temp_file_path, media_type="image/*", filename=filename)
         # -------
-
         # Create a BytesIO object to simulate a file-like object
         decrypted_image_stream = BytesIO(decrypted_data)
 
-        # Return the decrypted image directly using StreamingResponse
         return StreamingResponse(
             decrypted_image_stream,
             media_type="image/*",

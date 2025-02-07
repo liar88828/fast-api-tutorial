@@ -1,3 +1,4 @@
+import os
 import shutil
 from os import urandom
 from pathlib import Path
@@ -11,7 +12,6 @@ from fastapi import UploadFile, HTTPException
 from key import settings
 from service.aes_enc import encrypt_image_lib, decrypt_image_lib
 
-# Define the folder where files will be saved
 UPLOAD_FOLDER = Path("public")
 UPLOAD_FOLDER.mkdir(exist_ok=True)  # Create the folder if it doesn't exist
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"}
@@ -19,8 +19,8 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 
 # ENCRYPTION_PASSWORD = b"securepassword"  # Use a secure and secret password
 # SALT = b"static_salt_value"  # Salt for KDF, ideally unique per file
-ENCRYPTION_PASSWORD = settings.ENCRYPTION_PASSWORD.encode()
-SALT = settings.SALT.encode()
+ENCRYPTION_PASSWORD: bytes = settings.ENCRYPTION_PASSWORD.encode()
+SALT: bytes = settings.SALT.encode()
 
 
 # File paths
@@ -47,10 +47,9 @@ class ImageController:
                                 detail=f"Invalid file extension. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
 
     async def size_file(self, file: UploadFile):
-        file_size = await file.read()  # Read file content to check size
+        file_size = await file.read()
         if len(file_size) > MAX_FILE_SIZE:
             raise HTTPException(status_code=400, detail=f"File size exceeds {MAX_FILE_SIZE // (1024 * 1024)} MB limit")
-
         return file_size
 
     def save_file(self, file_path: Path, file: UploadFile):
@@ -71,28 +70,55 @@ class ImageController:
 
         return kdf.derive(password)
 
-    async def encrypt_image(self, data: bytes, password: bytes) -> bytes:
-        """Encrypt the image data using AES encryption."""
-        # Derive key using PBKDF2
-        key = self.password_image(password)
+    async def encrypt_image(self, file: UploadFile, password: bytes) -> Path:
+        # check file
+        if not file:
+            raise HTTPException(status_code=400,
+                                detail="No file sent")
 
-        # Generate a random initialization vector (IV)
+        # check extension
+        file_extension = Path(file.filename).suffix.lower()
+        if file_extension not in ALLOWED_EXTENSIONS:
+            raise HTTPException(status_code=400,
+                                detail=f"Invalid file extension. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
+
+        # check size
+        file_content = await file.read()
+        if len(file_content) > MAX_FILE_SIZE:
+            raise HTTPException(status_code=400,
+                                detail=f"File size exceeds {MAX_FILE_SIZE // (1024 * 1024)} MB limit")
+
+        # enc file
+        key = password
         iv = urandom(16)
-        # cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-        # encryptor = cipher.encryptor()
+        encrypted_data = iv + encrypt_image_lib(file_content, key, iv)
 
-        # Return IV concatenated with encrypted data (needed for decryption)
-        return iv + encrypt_image_lib(data, key, iv)
+        # save file
+        encrypted_file_path = UPLOAD_FOLDER / (file.filename + ".enc")
+        try:
+            with encrypted_file_path.open("wb") as buffer:
+                buffer.write(encrypted_data)
+        except Exception as e:
+            raise HTTPException(status_code=500,
+                                detail=f"File could not be saved: {str(e)}")
+        return encrypted_file_path
 
-    def decrypt_image(self,
-                      password: bytes,
-                      decrypted_image_path: str) -> bytes:
-        """Decrypt the encrypted image data using AES encryption."""
-        # Derive key using PBKDF2
-        key = self.password_image(password)
+    async def decrypt_image(self, filename: str, password:  bytes ) -> bytes:
+        decrypted_image_path = UPLOAD_FOLDER / (filename + ".enc")
 
-        # Decrypt and return the original image data
-        return decrypt_image_lib(decrypted_image_path, key)
+        # file path not found
+        if not decrypted_image_path.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+
+        # open file
+        with open(decrypted_image_path, 'rb') as f:  # open file
+            file_data: bytes = f.read()
+        if not file_data:
+            raise HTTPException(status_code=400, detail="File is empty or corrupted")
+
+        # decript file
+        key = password
+        return decrypt_image_lib(file_data, key)
 
     def _encrypt_image(self, data: bytes, password: bytes) -> bytes:
         """Encrypt the image data using AES encryption."""
