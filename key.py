@@ -2,8 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    JWT_SECRET_ACCESS_KEY: str = 'LhVjhTZNl9V4LhSYmlQkeB1m3As3+TUkmoMa1G5Eq+U='
-    JWT_SECRET_REFRESH_KEY: str = 'eOW45FYqZgPFSLDQzJ9X6GPJ+cp5s9yj8zTAqFix7UA='
+    JWT_SECRET_ACCESS_KEY: str = 'rahasia_session'
+    JWT_SECRET_REFRESH_KEY: str = 'rahasia_refresh'
     JWT_ALGORITHM: str = 'HS256'
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_Day: int = 30

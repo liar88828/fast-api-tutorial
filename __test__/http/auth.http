@@ -1,5 +1,6 @@
 @url = http://127.0.0.1:8000
 @path = auth
+@token = eyJhbGciOiJIUzI1NiJ9.eyJleHBpcmVzQXQiOiIyMDI1LTAyLTA4VDE0OjU2OjM0LjMzMloiLCJyb2xlIjoiVVNFUiIsInNlc3Npb25JZCI6IjU1ZTc0ZTQwLWM4MmItNGQ3NC1iYjYzLTNkYmMyMWYxYzE5ZiIsImlhdCI6MTczOTAyMjk5NCwiZXhwIjoxNzM5NjI3Nzk0fQ.h_PX03Awpxy4e8oLVX-3Rws2L-Y76LHXcH5c8GrfR_o
 
 ###
 POST {{url}}/{{path}}/login
@@ -26,5 +27,5 @@ Content-Type: application/json
 ###
 POST {{url}}/{{path}}/check
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidXNlcjYiLCJpZCI6MTcsImFkZHJlc3MiOiJqbC4gc3VwYXJ0bWFuIiwiZW1haWwiOiJ1c2VyNkBnbWFpbC5jb20iLCJwaG9uZSI6IjA4MTIzNDUxMjM0NSIsInJvbGUiOiJVU0VSIiwiZXhwIjoxNzM4NjU5MTQzfQ.fMZ6sy0viApRJj3gvYhOEg0CZN452XZGoO_8eO_KikI
+Authorization: Bearer {{token}}
 
